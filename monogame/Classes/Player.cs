@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace monogame.Classes
 {
-    internal class Player
+    public class Player
     {
+
     }
 }

@@ -1,14 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using monogame.Classes;
 
 namespace monogame
 {
     public class Game1 : Game
     {
+        //tools
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
+        //поля
+        private Player _player;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -19,7 +22,7 @@ namespace monogame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            _player = new Player();
             base.Initialize();
         }
 
