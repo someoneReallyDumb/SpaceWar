@@ -31,6 +31,7 @@ namespace monogame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            _player.LoadContent(Content);
         }
 
         protected override void Update(GameTime gameTime)
@@ -39,7 +40,7 @@ namespace monogame
                 Exit();
 
             // TODO: Add your update logic here
-
+            _player.Update();
             base.Update(gameTime);
         }
 
@@ -48,7 +49,9 @@ namespace monogame
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            _spriteBatch.Begin();
+            _player.Draw(_spriteBatch);
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }
