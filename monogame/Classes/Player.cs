@@ -23,6 +23,10 @@ namespace monogame.Classes
         {
             get { return _collision; }
         }
+        public List <Bullet> Bullets
+        {
+            get { return _bullets; }
+        }
         public Player() 
         {
             _position = new Vector2(30,30);
@@ -81,8 +85,8 @@ namespace monogame.Classes
             if (keyboard.IsKeyDown(Keys.Space) && _timer >= _maxTime)
             {
                 Bullet bullet = new Bullet();
-                bullet.Position = new Vector2(_position.X + _texture.Width / 2 - 
-                    - bullet.Width/2, _position.Y + bullet.Height / 2);
+                bullet.Position = new Vector2(_position.X + _texture.Width / 2 -
+                    bullet.Width / 2, _position.Y + bullet.Height / 4);
                 bullet.LoadContent(content);
                 _bullets.Add(bullet);
                 _timer = 0;
@@ -90,6 +94,13 @@ namespace monogame.Classes
             foreach (Bullet bullet in _bullets)
             {
                 bullet.Update();
+            }
+            for (int i = 0; i < _bullets.Count; i++)
+            {
+                if (_bullets[i].IsAlive == false)
+                {
+                    _bullets.RemoveAt(i);
+                }
             }
         }
         public void Draw(SpriteBatch spriteBatch)

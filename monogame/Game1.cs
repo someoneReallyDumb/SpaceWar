@@ -17,8 +17,13 @@ namespace monogame
         //поля
         private Player _player;
         private Space _space;
+        private Label _label;
+        private GameMode _gameMode = GameMode.Menu;
+        private MainMenu _mainMenu;
         private Asteroid _asteroid;
+        private GameOver _gameOver;
         private List<Asteroid> _asteroids;
+        private List <Explosion> _explosions;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -32,7 +37,13 @@ namespace monogame
             _player = new Player();
             _space = new Space(); 
             _asteroids = new List<Asteroid>();
+            _explosions = new List<Explosion>();
+            _label = new Label(Vector2.Zero, "hello :D", Color.Thistle);
+            _mainMenu = new MainMenu();
+            _gameOver = new GameOver(_graphics.PreferredBackBufferWidth, 
+                _graphics.PreferredBackBufferHeight);
             base.Initialize();
+
         }
 
         protected override void LoadContent()
@@ -40,8 +51,12 @@ namespace monogame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            
+            _label.LoadContent(Content);
             _player.LoadContent(Content);
             _space.LoadContent(Content);
+            _gameOver.LoadContent(Content);
+            _mainMenu.LoadContent(Content);
             //_bullet.LoadContent(Content);
             for (int i = 0; i < COUNT_ASTEROIDS; i++)
             {
@@ -64,14 +79,29 @@ namespace monogame
                 Exit();
 
             // TODO: Add your update logic here
-            _player.Update(
-                _graphics.PreferredBackBufferWidth,
-                _graphics.PreferredBackBufferHeight, Content);
-            _space.Update();
-            AsteroidsUpdate();
+            switch (_gameMode)
+            {
+                case GameMode.Menu:
+                    _mainMenu.Update();
+                    break;
+                case GameMode.Playing:
+                    _player.Update(
+                    _graphics.PreferredBackBufferWidth,
+                    _graphics.PreferredBackBufferHeight, Content);
+                    _space.Update();
+                    AsteroidsUpdate();
+                    CheckCollision();
+                    UpdExplosions(gameTime);
+                    break;
+                case GameMode.GameOver:
+                    _space.Update();
+                    break;
+                default:
+                    break;
+            }
+           
             base.Update(gameTime);
         }
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -79,11 +109,30 @@ namespace monogame
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
             {
-                _space.Draw(_spriteBatch);
-                _player.Draw(_spriteBatch);
-                foreach (Asteroid asteroid in _asteroids)
+                switch (_gameMode)
                 {
-                    asteroid.Draw(_spriteBatch);
+                    case GameMode.Menu:
+                        _mainMenu.Draw(_spriteBatch);
+                        break;
+                    case GameMode.Playing:
+                        _space.Draw(_spriteBatch);
+                        _label.Draw(_spriteBatch);
+                        _player.Draw(_spriteBatch);
+                        foreach (Asteroid asteroid in _asteroids)
+                        {
+                            asteroid.Draw(_spriteBatch);
+                        }
+                        foreach (Explosion explosion in _explosions)
+                        {
+                            explosion.Draw(_spriteBatch);
+                        }
+                        break;
+                    case GameMode.GameOver:
+                        _space.Draw(_spriteBatch);
+                        _gameOver.Draw(_spriteBatch);
+                        break;
+                    default:
+                        break;
                 }
             }
             _spriteBatch.End();
@@ -103,7 +152,7 @@ namespace monogame
                     int y = random.Next(0, _graphics.PreferredBackBufferHeight);
                     asteroid.Position = new Vector2(x, -y);
                 }
-                if (asteroid.Collision.Intersects(_player.Collision))
+                if (!asteroid.IsAlive)
                 {
                     _asteroids.Remove(asteroid);
                     i--;
@@ -124,6 +173,56 @@ namespace monogame
             int y = random.Next(0, _graphics.PreferredBackBufferHeight);
             asteroid.Position = new Vector2(x, -y);
             _asteroids.Add(asteroid);
+        }
+        private void CheckCollision()
+        {
+            foreach (Asteroid asteroid in _asteroids)
+            {
+                if (asteroid.Collision.Intersects(_player.Collision))
+                {
+                    asteroid.IsAlive = false;
+                    Explosion explosion = new Explosion(asteroid.Position);
+                    Vector2 position = asteroid.Position;
+                    position = new Vector2(
+                        position.X - explosion.Width / 2,
+                        position.Y - explosion.Height / 2);
+                    position = new Vector2(position.X + asteroid.Width / 2,
+                        position.Y + asteroid.Height / 2);
+                    explosion.Position = position;
+                    explosion.LoadContent(Content);
+                    _explosions.Add(explosion);
+                }
+                foreach (Bullet bullet in _player.Bullets)
+                {
+                    if (asteroid.Collision.Intersects(bullet.Collision))
+                    {
+                        bullet.IsAlive = false;
+                        asteroid.IsAlive = false;
+                        Explosion explosion = new Explosion(asteroid.Position);
+                        Vector2 position = asteroid.Position;
+                        position = new Vector2(
+                            position.X - explosion.Width / 2, 
+                            position.Y - explosion.Height / 2);
+                        position = new Vector2(position.X + asteroid.Width / 2, 
+                            position.Y + asteroid.Height / 2);
+                        explosion.Position = position;
+                        explosion.LoadContent(Content);
+                        _explosions.Add(explosion);
+                    } 
+                }
+            }
+        }
+        private void UpdExplosions(GameTime gameTime)
+        {
+            for (int i = 0; i < _explosions.Count; i++)
+            {
+                _explosions[i].Update(gameTime);
+                if(!_explosions[i].IsAlive)
+                {
+                    _explosions.RemoveAt(i);
+                    i--;
+                }
+            }
         }
     }
 }
