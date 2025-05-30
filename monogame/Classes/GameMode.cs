@@ -4,6 +4,8 @@
     {
         Menu,
         Playing,
-        GameOver
+        Pause,
+        GameOver,
+        Exit
     }
 }

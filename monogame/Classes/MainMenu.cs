@@ -7,34 +7,36 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.MediaFoundation;
 namespace monogame.Classes
 {
-    public class MainMenu
+    public class MainMenu : Menu
     {
-        private List<Label> _buttonList = new List<Label>();
-        private int _selected;
-        public MainMenu()
+        public event Action OnPlayingStarted;
+        public event Action OnLoadGame;
+        public MainMenu(int widthScreen, int heightScreen) : base(widthScreen, heightScreen) 
         { 
-            _selected = 0;
             _buttonList.Add(new Label(new Vector2(0, 0), "Play", Color.White));
+            _buttonList.Add(new Label(new Vector2(0, 40), "LoadGame", Color.White));
             _buttonList.Add(new Label(new Vector2(0, 40), "Exit", Color.White));
         }
-        public void LoadContent(ContentManager content)
+        public override void PressEnter()
         {
-            foreach (Label button in _buttonList)
+            if (_selected == 0)
             {
-                button.LoadContent(content);
+                if (OnPlayingStarted != null)
+                {
+                    OnPlayingStarted();
+                }
             }
-        }
-        public void Update()
-        {
-
-        }
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            foreach(Label button in _buttonList)
+            else if (_selected == 1)
             {
-                button.Draw(spriteBatch);
+                if (OnLoadGame != null)
+                    OnLoadGame();
+            }
+            else if (_selected == 2)
+            {
+                Game1.gameMode = GameMode.Exit;
             }
         }
     }

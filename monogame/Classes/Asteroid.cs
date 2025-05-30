@@ -7,9 +7,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using monogame.Classes.SaveData;
 namespace monogame.Classes
 {
-    public class Asteroid
+    public class Asteroid : ISaveable
     {
         private Vector2 _position;
         private Texture2D _texture;
@@ -56,6 +57,26 @@ namespace monogame.Classes
             _position.Y += 2;
             _collision = new Rectangle((int)_position.X, (int)_position.Y,
                                        _texture.Width, _texture.Height);
+        }
+        public void LoadData(object data, ContentManager content)
+        {
+            if (!(data is AsteroidData))
+            {
+                return;
+            }
+            AsteroidData asteroidData = (AsteroidData)data;
+            _position = new Vector2(asteroidData.X, asteroidData.Y);
+            IsAlive = asteroidData.isAlive;
+            LoadContent(content);
+        }
+
+        public object SaveData()
+        {
+            AsteroidData asteroidData = new AsteroidData();
+            asteroidData.X = (int)_position.X;
+            asteroidData.Y = (int)_position.Y;
+            asteroidData.isAlive = IsAlive;
+            return asteroidData;
         }
     }
 }

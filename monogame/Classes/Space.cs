@@ -15,13 +15,17 @@ namespace monogame.Classes
         private Texture2D _texture;
         private Vector2 _position1;
         private Vector2 _position2;
-        public float speed;
+        private float _speed;
+        public float Speed
+        {
+            set => _speed = value;
+        }
         public Space()
         {
             _texture = null;
             //_position1 = new Vector2(0, _texture.Height);
             _position2 = Vector2.Zero;
-            speed = 1;
+            _speed = 1;
         }
         public void LoadContent(ContentManager content)
         {
@@ -30,8 +34,8 @@ namespace monogame.Classes
         }
         public void Update()
         {
-            _position1.Y += speed;
-            _position2.Y += speed;
+            _position1.Y += _speed;
+            _position2.Y += _speed;
             if (_position1.Y >=0)
             {
                 _position1.Y = -_texture.Height;
